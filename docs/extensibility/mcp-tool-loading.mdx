@@ -1,0 +1,157 @@
+---
+title: "MCP 工具加载与发现"
+description: "说明 Claude Code 中 MCP 工具从连接、发现、合并到执行的完整链路，以及哪些部分能运行时刷新、哪些仍然需要重启。"
+keywords: ["MCP", "工具加载", "工具发现", "runtime refresh", "MCPTool"]
+---
+
+## 概览
+
+MCP 工具不是靠扫描文件目录加载的，而是走一条明确的运行时链路：
+
+1. 连接 MCP server
+2. 通过 `tools/list` 发现远程工具
+3. 把远程工具包装成统一的 `Tool` 结构
+4. 与内置工具合并、去重、过滤
+5. 在模型发起 `tool_use` 时按名字查找并执行
+
+这意味着：
+
+- **MCP 工具可以热刷新**，因为它们来自已连接的 server
+- **内置工具不是热加载**，它们是静态注册表
+- **工具执行时不是按文件找实现**，而是按工具名在当前工具池里查找
+
+## 工具来源
+
+Claude Code 的工具池大致分三层：
+
+### 1. 内置工具
+
+内置工具由 [src/tools.ts](/c:/Users/Administrator/Desktop/1/claude-code/src/tools.ts) 静态组装：
+
+- 一批工具直接 `import`
+- 少量工具按 `feature()` 或环境变量条件 `require`
+- `getAllBaseTools()` 返回完整候选集
+- `getTools()` 再按权限、模式、`isEnabled()` 过滤
+
+这部分通常要重启进程才会变更。
+
+### 2. MCP 工具
+
+MCP 工具来自已连接的 server。它们在 [packages/mcp-client/src/manager.ts](/c:/Users/Administrator/Desktop/1/claude-code/packages/mcp-client/src/manager.ts) 中由 `discoverTools()` 拉取，再缓存进 `toolsCache`。
+
+### 3. 搜索/延迟暴露工具
+
+`SearchExtraToolsTool` 不是新加载模块，而是把一部分工具延迟暴露给模型。工具本体仍然在进程里，只是 schema 不一定一开始全部发给模型。
+
+## 发现流程
+
+MCP 工具发现的核心是 `tools/list`：
+
+```text
+connect(name, config)
+  -> refreshTools(name, connection)
+  -> discoverTools(...)
+  -> client.request({ method: 'tools/list' })
+  -> wrap 成统一 Tool
+```
+
+在代码里，这条链路主要发生在：
+
+- [packages/mcp-client/src/manager.ts](/c:/Users/Administrator/Desktop/1/claude-code/packages/mcp-client/src/manager.ts)
+- [src/services/mcp/client.ts](/c:/Users/Administrator/Desktop/1/claude-code/src/services/mcp/client.ts)
+
+远程 MCP 工具会被包装成 Claude Code 的统一 `Tool` 接口，并带上 `mcpInfo`，例如：
+
+```ts
+mcpInfo?: { serverName: string; toolName: string }
+```
+
+这样后续权限规则、去重、展示和执行都能用同一套逻辑处理。
+
+## 运行时刷新
+
+MCP 工具是能动态变化的，主要体现在这几处：
+
+- **连接成功后刷新**
+- **断开连接后清理缓存**
+- **server 工具列表变化时触发 `toolsChanged`**
+- **每轮 query 之间重新计算工具池**
+
+在 [src/query.ts](/c:/Users/Administrator/Desktop/1/claude-code/src/query.ts) 里，工具执行完一轮后会调用 `refreshTools()`，这样新连接上的 MCP server 可以在下一轮生效。
+
+在 REPL 路径里，`useMergedTools()` 会把当前 `appState.mcp.tools` 和内置工具重新合并：
+
+- [src/hooks/useMergedTools.ts](/c:/Users/Administrator/Desktop/1/claude-code/src/hooks/useMergedTools.ts)
+- [src/utils/toolPool.ts](/c:/Users/Administrator/Desktop/1/claude-code/src/utils/toolPool.ts)
+
+## 工具合并
+
+合并时不是简单拼接，而是做了几步处理：
+
+1. 内置工具先作为基础池
+2. MCP 工具再合并进来
+3. 按 deny rule 过滤
+4. 按工具名去重，内置工具优先
+5. 按名称排序，保持 prompt cache 稳定
+
+关键函数：
+
+- `assembleToolPool()`
+- `mergeAndFilterTools()`
+- `filterToolsByDenyRules()`
+
+## 执行时怎么找工具
+
+模型发出 `tool_use` 后，执行层不会重新扫描文件，而是直接在当前工具数组里找：
+
+- `findToolByName()`
+- `toolMatchesName()`
+
+相关执行入口：
+
+- [src/services/tools/toolOrchestration.ts](/c:/Users/Administrator/Desktop/1/claude-code/src/services/tools/toolOrchestration.ts)
+- [src/services/tools/StreamingToolExecutor.ts](/c:/Users/Administrator/Desktop/1/claude-code/src/services/tools/StreamingToolExecutor.ts)
+
+也就是说，**发现阶段负责把工具放进池子，执行阶段只做名字匹配**。
+
+## 能不能热加载
+
+### 可以
+
+- 已连接 MCP server 的工具
+- 连接/断开后刷新后的工具池
+- 通过 SearchExtraTools 延迟暴露出来的工具
+
+### 不可以
+
+- 内置工具模块本身的代码热替换
+- 静态 `import` 进来的工具定义自动变更
+
+如果要真正做到内置工具热加载，需要把当前静态注册表改成更可插拔的工厂/插件模型。
+
+## 优化方向
+
+当前最值得优化的点有三个：
+
+1. **工具索引表**
+   - 现在执行时是数组查找
+   - 可以在每次组装工具池时顺手建一个 `Map<string, Tool>`
+
+2. **分层缓存**
+   - 把内置工具、MCP 工具、延迟暴露工具分开缓存
+   - 避免每轮都全量 flatten 再筛
+
+3. **更细粒度的刷新标记**
+   - 给工具池加 revision/version
+   - 只在 MCP 连接变化时重建，而不是每个渲染点都重算
+
+## 相关代码
+
+- [src/tools.ts](/c:/Users/Administrator/Desktop/1/claude-code/src/tools.ts)
+- [src/Tool.ts](/c:/Users/Administrator/Desktop/1/claude-code/src/Tool.ts)
+- [packages/mcp-client/src/manager.ts](/c:/Users/Administrator/Desktop/1/claude-code/packages/mcp-client/src/manager.ts)
+- [src/query.ts](/c:/Users/Administrator/Desktop/1/claude-code/src/query.ts)
+- [src/hooks/useMergedTools.ts](/c:/Users/Administrator/Desktop/1/claude-code/src/hooks/useMergedTools.ts)
+- [src/utils/toolPool.ts](/c:/Users/Administrator/Desktop/1/claude-code/src/utils/toolPool.ts)
+- [src/services/tools/toolOrchestration.ts](/c:/Users/Administrator/Desktop/1/claude-code/src/services/tools/toolOrchestration.ts)
+- [src/services/tools/StreamingToolExecutor.ts](/c:/Users/Administrator/Desktop/1/claude-code/src/services/tools/StreamingToolExecutor.ts)

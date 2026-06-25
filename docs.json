@@ -62,6 +62,7 @@
         "group": "可扩展性",
         "pages": [
           "docs/extensibility/mcp-protocol",
+          "docs/extensibility/mcp-tool-loading",
           "docs/extensibility/hooks",
           "docs/extensibility/skills",
           "docs/extensibility/custom-agents"
