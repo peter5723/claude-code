@@ -5,15 +5,20 @@
  * Levels are ordered by restrictiveness:
  *   default < no-telemetry < essential-traffic
  *
- * - default:            Everything enabled.
+ * - default:            Everything enabled (explicit opt-in only).
  * - no-telemetry:       Analytics/telemetry disabled (Datadog, 1P events, feedback survey).
  * - essential-traffic:  ALL nonessential network traffic disabled
  *                       (telemetry + auto-updates, grove, release notes, model capabilities, etc.).
  *
  * The resolved level is the most restrictive signal from:
+ *   EASTCODE_ENABLE_TELEMETRY                 ->  default
+ *
+ * Default is no-telemetry unless explicitly opted in.
  *   CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC  →  essential-traffic
  *   DISABLE_TELEMETRY                         →  no-telemetry
  */
+
+import { isEnvTruthy } from './envUtils.js'
 
 type PrivacyLevel = 'default' | 'no-telemetry' | 'essential-traffic'
 
@@ -24,7 +29,10 @@ export function getPrivacyLevel(): PrivacyLevel {
   if (process.env.DISABLE_TELEMETRY) {
     return 'no-telemetry'
   }
-  return 'default'
+  if (isEnvTruthy(process.env.EASTCODE_ENABLE_TELEMETRY)) {
+    return 'default'
+  }
+  return 'no-telemetry'
 }
 
 /**

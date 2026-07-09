@@ -12,7 +12,7 @@ mock.module('../parseDeepLink.js', () => ({
   parseDeepLink: mockParseDeepLink,
 }))
 mock.module('../registerProtocol.js', () => ({
-  MACOS_BUNDLE_ID: 'com.anthropic.claude-code-url-handler',
+  MACOS_BUNDLE_ID: 'com.eastcode.claude-code-url-handler',
 }))
 mock.module('../terminalLauncher.js', () => ({
   launchInTerminal: mockLaunchInTerminal,
@@ -61,14 +61,14 @@ describe('handleUrlSchemeLaunch', () => {
   })
 
   test('returns null for a matching bundle id when no URL event arrives', async () => {
-    process.env.__CFBundleIdentifier = 'com.anthropic.claude-code-url-handler'
+    process.env.__CFBundleIdentifier = 'com.eastcode.claude-code-url-handler'
 
     await expect(handleUrlSchemeLaunch()).resolves.toBeNull()
     expect(mockParseDeepLink).not.toHaveBeenCalled()
   })
 
   test('handles a URL event after waiting for url-handler-napi', async () => {
-    process.env.__CFBundleIdentifier = 'com.anthropic.claude-code-url-handler'
+    process.env.__CFBundleIdentifier = 'com.eastcode.claude-code-url-handler'
     process.env.CLAUDE_CODE_URL_EVENT = 'claude-cli://prompt?q=hello'
 
     await expect(handleUrlSchemeLaunch()).resolves.toBe(0)

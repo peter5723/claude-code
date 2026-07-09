@@ -44,9 +44,11 @@ const inspectArgs = process.env.BUN_INSPECT
   ? ['--inspect-wait=' + process.env.BUN_INSPECT]
   : []
 
+const bunExecutable = process.execPath || 'bun'
+
 const result = Bun.spawnSync(
   [
-    'bun',
+    bunExecutable,
     ...inspectArgs,
     'run',
     ...defineArgs,

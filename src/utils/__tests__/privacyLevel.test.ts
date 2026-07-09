@@ -10,10 +10,12 @@ describe('getPrivacyLevel', () => {
   const originalDisableNonessential =
     process.env.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC
   const originalDisableTelemetry = process.env.DISABLE_TELEMETRY
+  const originalEastcodeEnableTelemetry = process.env.EASTCODE_ENABLE_TELEMETRY
 
   afterEach(() => {
     delete process.env.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC
     delete process.env.DISABLE_TELEMETRY
+    delete process.env.EASTCODE_ENABLE_TELEMETRY
     if (originalDisableNonessential !== undefined) {
       process.env.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC =
         originalDisableNonessential
@@ -21,29 +23,43 @@ describe('getPrivacyLevel', () => {
     if (originalDisableTelemetry !== undefined) {
       process.env.DISABLE_TELEMETRY = originalDisableTelemetry
     }
+    if (originalEastcodeEnableTelemetry !== undefined) {
+      process.env.EASTCODE_ENABLE_TELEMETRY = originalEastcodeEnableTelemetry
+    }
   })
 
-  test("returns 'default' when no env vars set", () => {
+  test("returns 'no-telemetry' when no env vars set", () => {
     delete process.env.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC
     delete process.env.DISABLE_TELEMETRY
+    delete process.env.EASTCODE_ENABLE_TELEMETRY
+    expect(getPrivacyLevel()).toBe('no-telemetry')
+  })
+
+  test("returns 'default' when EASTCODE_ENABLE_TELEMETRY is set", () => {
+    delete process.env.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC
+    delete process.env.DISABLE_TELEMETRY
+    process.env.EASTCODE_ENABLE_TELEMETRY = '1'
     expect(getPrivacyLevel()).toBe('default')
   })
 
   test("returns 'essential-traffic' when CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC is set", () => {
     process.env.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = '1'
     delete process.env.DISABLE_TELEMETRY
+    process.env.EASTCODE_ENABLE_TELEMETRY = '1'
     expect(getPrivacyLevel()).toBe('essential-traffic')
   })
 
   test("returns 'no-telemetry' when DISABLE_TELEMETRY is set", () => {
     delete process.env.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC
     process.env.DISABLE_TELEMETRY = '1'
+    process.env.EASTCODE_ENABLE_TELEMETRY = '1'
     expect(getPrivacyLevel()).toBe('no-telemetry')
   })
 
   test("'essential-traffic' takes priority over 'no-telemetry'", () => {
     process.env.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = '1'
     process.env.DISABLE_TELEMETRY = '1'
+    process.env.EASTCODE_ENABLE_TELEMETRY = '1'
     expect(getPrivacyLevel()).toBe('essential-traffic')
   })
 })
@@ -53,6 +69,7 @@ describe('isEssentialTrafficOnly', () => {
 
   afterEach(() => {
     delete process.env.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC
+    delete process.env.EASTCODE_ENABLE_TELEMETRY
     if (original !== undefined)
       process.env.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = original
   })
@@ -65,6 +82,7 @@ describe('isEssentialTrafficOnly', () => {
   test("returns false for 'default' level", () => {
     delete process.env.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC
     delete process.env.DISABLE_TELEMETRY
+    process.env.EASTCODE_ENABLE_TELEMETRY = '1'
     expect(isEssentialTrafficOnly()).toBe(false)
   })
 
@@ -79,6 +97,7 @@ describe('isTelemetryDisabled', () => {
   afterEach(() => {
     delete process.env.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC
     delete process.env.DISABLE_TELEMETRY
+    delete process.env.EASTCODE_ENABLE_TELEMETRY
   })
 
   test("returns true for 'no-telemetry' level", () => {
@@ -92,6 +111,7 @@ describe('isTelemetryDisabled', () => {
   })
 
   test("returns false for 'default' level", () => {
+    process.env.EASTCODE_ENABLE_TELEMETRY = '1'
     expect(isTelemetryDisabled()).toBe(false)
   })
 })

@@ -54,6 +54,7 @@ import { isEnvTruthy } from '../envUtils.js'
 import { errorMessage } from '../errors.js'
 import { getMTLSConfig } from '../mtls.js'
 import { getProxyUrl, shouldBypassProxy } from '../proxy.js'
+import { isTelemetryDisabled } from '../privacyLevel.js'
 import { getSettings_DEPRECATED } from '../settings/settings.js'
 import { jsonStringify } from '../slowOperations.js'
 import { profileCheckpoint } from '../startupProfiler.js'
@@ -335,6 +336,10 @@ function getBigQueryExportingReader() {
 }
 
 function isBigQueryMetricsEnabled() {
+  if (isTelemetryDisabled()) {
+    return false
+  }
+
   // BigQuery metrics are enabled for:
   // 1. API customers (excluding Claude.ai subscribers and Bedrock/Vertex)
   // 2. Claude for Enterprise (C4E) users
@@ -402,7 +407,7 @@ async function initializeBetaTracing(
 
   // Initialize event logger
   const eventLogger = logs.getLogger(
-    'com.anthropic.claude_code.events',
+    'com.eastcode.claude_code.events',
     MACRO.VERSION,
   )
   setEventLogger(eventLogger)
@@ -562,7 +567,7 @@ export async function initializeTelemetry() {
     }
     registerCleanup(shutdownTelemetry)
 
-    return meterProvider.getMeter('com.anthropic.claude_code', MACRO.VERSION)
+    return meterProvider.getMeter('com.eastcode.claude_code', MACRO.VERSION)
   }
 
   const meterProvider = new MeterProvider({
@@ -603,7 +608,7 @@ export async function initializeTelemetry() {
 
       // Initialize event logger
       const eventLogger = logs.getLogger(
-        'com.anthropic.claude_code.events',
+        'com.eastcode.claude_code.events',
         MACRO.VERSION,
       )
       setEventLogger(eventLogger)
@@ -702,7 +707,7 @@ Current timeout: ${timeoutMs}ms
   // Always register shutdown (internal metrics are always enabled)
   registerCleanup(shutdownTelemetry)
 
-  return meterProvider.getMeter('com.anthropic.claude_code', MACRO.VERSION)
+  return meterProvider.getMeter('com.eastcode.claude_code', MACRO.VERSION)
 }
 
 /**

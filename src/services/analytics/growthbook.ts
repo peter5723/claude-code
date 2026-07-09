@@ -14,6 +14,7 @@ import { logForDebugging } from '../../utils/debug.js'
 import { toError } from '../../utils/errors.js'
 import { getAuthHeaders } from '../../utils/http.js'
 import { logError } from '../../utils/log.js'
+import { isTelemetryDisabled } from '../../utils/privacyLevel.js'
 import { createSignal } from '../../utils/signal.js'
 import { jsonStringify } from '../../utils/slowOperations.js'
 import {
@@ -491,6 +492,10 @@ function getLocalGateDefault(feature: string): unknown | undefined {
  * Check if GrowthBook operations should be enabled
  */
 function isGrowthBookEnabled(): boolean {
+  if (isTelemetryDisabled()) {
+    return false
+  }
+
   // 适配器模式：有自定义服务器配置时直接启用
   if (process.env.CLAUDE_GB_ADAPTER_URL && process.env.CLAUDE_GB_ADAPTER_KEY) {
     return true

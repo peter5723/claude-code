@@ -30,7 +30,7 @@ import { getInitialSettings } from '../settings/settings.js'
 import { which } from '../which.js'
 import { getUserBinDir, getXDGDataHome } from '../xdg.js'
 
-export const MACOS_BUNDLE_ID = 'com.anthropic.claude-code-url-handler'
+export const MACOS_BUNDLE_ID = 'com.eastcode.claude-code-url-handler'
 const APP_NAME = 'Claude Code URL Handler'
 const DESKTOP_FILE_NAME = 'claude-code-url-handler.desktop'
 const MACOS_APP_NAME = 'Claude Code URL Handler.app'
