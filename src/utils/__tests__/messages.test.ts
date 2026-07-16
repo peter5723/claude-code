@@ -520,6 +520,27 @@ describe('normalizeMessagesForAPI', () => {
     expect(block.type).toBe('tool_use')
     expect(block._geminiThoughtSignature).toBe('sig-123')
   })
+
+  test('strips caller metadata from tool_use blocks before API send', () => {
+    const assistant = makeAssistantMsg([
+      {
+        type: 'tool_use',
+        id: 'tool-1',
+        name: 'Bash',
+        input: { command: 'pwd' },
+        caller: { type: 'tool', name: 'SearchExtraTools' },
+        _geminiThoughtSignature: 'sig-123',
+      },
+    ])
+
+    const normalized = normalizeMessagesForAPI([assistant])
+    const block = (normalized[0] as AssistantMessage).message!
+      .content![0] as any
+
+    expect(block.type).toBe('tool_use')
+    expect(block.caller).toBeUndefined()
+    expect(block._geminiThoughtSignature).toBe('sig-123')
+  })
 })
 
 describe('ensureToolResultPairing', () => {

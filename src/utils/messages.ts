@@ -2504,10 +2504,8 @@ export function normalizeMessagesForAPI(
         }
         case 'assistant': {
           // Normalize tool inputs for API (strip fields like plan from ExitPlanModeV2)
-          // When tool search is NOT enabled, we must strip tool_search-specific fields
-          // like 'caller' from tool_use blocks, as these are only valid with the
-          // tool search beta header
-          const searchExtraToolsEnabled = isSearchExtraToolsEnabledOptimistic()
+          // and remove tool-search-only fields that are not accepted by the API
+          // without the old API-side tool search beta.
           const normalizedMessage: AssistantMessage = {
             ...message,
             message: {
@@ -2530,18 +2528,11 @@ export function normalizeMessagesForAPI(
                     : toolUseBlk.input
                   const canonicalName = tool?.name ?? toolUseBlk.name
 
-                  // When tool search is enabled, preserve all fields including 'caller'
-                  if (searchExtraToolsEnabled) {
-                    return {
-                      ...block,
-                      name: canonicalName,
-                      input: normalizedInput,
-                    }
-                  }
-
-                  // When tool search is NOT enabled, strip tool-search-only fields
-                  // like 'caller', but preserve other provider metadata attached to
-                  // the block (for example Gemini thought signatures on tool_use).
+                  // Always strip tool-search-only fields like 'caller' before
+                  // sending history back to the API. This build uses self-built
+                  // tool search instead of the API-side beta that accepted those
+                  // fields, but we still preserve other provider metadata attached
+                  // to the block (for example Gemini thought signatures).
                   const { caller: _caller, ...toolUseRest } =
                     block as ToolUseBlock &
                       Record<string, unknown> & { caller?: unknown }
