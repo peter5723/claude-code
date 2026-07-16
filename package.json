@@ -1,20 +1,19 @@
 {
-  "name": "claude-code-best",
+  "name": "ccb",
   "version": "2.8.3",
-  "description": "Reverse-engineered Anthropic Claude Code CLI — interactive AI coding assistant in the terminal",
+  "description": "CCB terminal AI coding assistant",
   "type": "module",
-  "author": "claude-code-best <claude-code-best@proton.me>",
+  "author": "ccb maintainers",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/claude-code-best/claude-code.git"
+    "url": "git+https://github.com/peter5723/ccb.git"
   },
-  "homepage": "https://github.com/claude-code-best/claude-code#readme",
+  "homepage": "https://github.com/peter5723/ccb#readme",
   "bugs": {
-    "url": "https://github.com/claude-code-best/claude-code/issues"
+    "url": "https://github.com/peter5723/ccb/issues"
   },
   "keywords": [
-    "claude",
-    "anthropic",
+    "ccb",
     "cli",
     "ai",
     "coding-assistant",

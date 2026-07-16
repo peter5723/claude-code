@@ -1,14 +1,14 @@
-# Claude Code Best V5 (CCB)
+# CCB
 
-[![GitHub Stars](https://img.shields.io/github/stars/claude-code-best/claude-code?style=flat-square&logo=github&color=yellow)](https://github.com/claude-code-best/claude-code/stargazers)
-[![GitHub Contributors](https://img.shields.io/github/contributors/claude-code-best/claude-code?style=flat-square&color=green)](https://github.com/claude-code-best/claude-code/graphs/contributors)
-[![GitHub Issues](https://img.shields.io/github/issues/claude-code-best/claude-code?style=flat-square&color=orange)](https://github.com/claude-code-best/claude-code/issues)
-[![GitHub License](https://img.shields.io/github/license/claude-code-best/claude-code?style=flat-square)](https://github.com/claude-code-best/claude-code/blob/main/LICENSE)
-[![Last Commit](https://img.shields.io/github/last-commit/claude-code-best/claude-code?style=flat-square&color=blue)](https://github.com/claude-code-best/claude-code/commits/main)
+[![GitHub Stars](https://img.shields.io/github/stars/peter5723/ccb?style=flat-square&logo=github&color=yellow)](https://github.com/peter5723/ccb/stargazers)
+[![GitHub Contributors](https://img.shields.io/github/contributors/peter5723/ccb?style=flat-square&color=green)](https://github.com/peter5723/ccb/graphs/contributors)
+[![GitHub Issues](https://img.shields.io/github/issues/peter5723/ccb?style=flat-square&color=orange)](https://github.com/peter5723/ccb/issues)
+[![GitHub License](https://img.shields.io/github/license/peter5723/ccb?style=flat-square)](https://github.com/peter5723/ccb/blob/main/LICENSE)
+[![Last Commit](https://img.shields.io/github/last-commit/peter5723/ccb?style=flat-square&color=blue)](https://github.com/peter5723/ccb/commits/main)
 [![Bun](https://img.shields.io/badge/runtime-Bun-black?style=flat-square&logo=bun)](https://bun.sh/)
 [![Discord](https://img.shields.io/badge/Discord-Join-5865F2?style=flat-square&logo=discord)](https://discord.gg/uApuzJWGKX)
 
-> Which Claude do you like? The open source one is the best.
+> CCB is an open source terminal AI coding assistant.
 
 这是 A\ (Anthropic) 官方 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) 完整复原的工程化项目。而且, 我们持续跟进并实现了企业版或者需要登陆 Claude 账号才能使用的特性, 并在此基础上扩展了更多好玩的特性， 关闭了所有的外部封控点。我们完全兼容 CC 原有的配置， 你不需要改原始配置文件， Dynamic Workflow、Goal 等功能全都在。
 
@@ -45,19 +45,19 @@
 不用克隆仓库, 从 NPM 下载后, 直接使用
 
 ```sh
-npm i -g claude-code-best
+npm i -g ccb
 
 # bun 安装比较多问题, 推荐 npm 装
-# bun  i -g claude-code-best
-# bun pm -g trust claude-code-best @claude-code-best/mcp-chrome-bridge
+# bun  i -g ccb
+# bun pm -g trust ccb @claude-code-best/mcp-chrome-bridge
 
-ccb # 以 nodejs 打开 claude code
+ccb # 以 nodejs 打开 CCB
 ccb-bun # 以 bun 形态打开
 ccb update # 更新到最新版本
 CLAUDE_BRIDGE_BASE_URL=https://remote-control.claude-code-best.win/ CLAUDE_BRIDGE_OAUTH_TOKEN=test-my-key ccb --remote-control # 我们有自部署的远程控制
 ```
 
-> **安装/更新失败？** 先 `npm rm -g claude-code-best` 清理旧版本，再 `npm i -g claude-code-best@latest`。仍失败则指定版本号：`npm i -g claude-code-best@<版本号>`
+> **安装/更新失败？** 先 `npm rm -g ccb` 清理旧版本，再 `npm i -g ccb@latest`。仍失败则指定版本号：`npm i -g ccb@<版本号>`
 
 ## ⚡ 快速开始(源码版)
 
@@ -125,7 +125,7 @@ powershell -c "irm bun.sh/install.ps1 | iex"
 ### 📥 安装
 
 ```bash
-cd /path/to/claude-code
+cd /path/to/ccb
 bun install
 ```
 
@@ -218,21 +218,21 @@ TUI (REPL) 模式需要真实终端，无法直接通过 VS Code launch 启动�
 ## 相关文档及网站
 
 - **在线文档（Mintlify）**: [ccb.agent-aura.top](https://ccb.agent-aura.top/) — 文档源码位于 [`docs/`](docs/) 目录，欢迎投稿 PR
-- **DeepWiki**: [https://deepwiki.com/claude-code-best/claude-code](https://deepwiki.com/claude-code-best/claude-code)
+- **DeepWiki**: [https://deepwiki.com/peter5723/ccb](https://deepwiki.com/peter5723/ccb)
 
 ## Contributors
 
-<a href="https://github.com/claude-code-best/claude-code/graphs/contributors">
+<a href="https://github.com/peter5723/ccb/graphs/contributors">
   <img src="contributors.svg" alt="Contributors" />
 </a>
 
 ## Star History
 
-<a href="https://www.star-history.com/?repos=claude-code-best%2Fclaude-code&type=date&legend=top-left">
+<a href="https://www.star-history.com/?repos=peter5723%2Fccb&type=date&legend=top-left">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/image?repos=claude-code-best/claude-code&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/image?repos=claude-code-best/claude-code&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/image?repos=claude-code-best/claude-code&type=date&legend=top-left" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/image?repos=peter5723/ccb&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/image?repos=peter5723/ccb&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/image?repos=peter5723/ccb&type=date&legend=top-left" />
  </picture>
 </a>
 

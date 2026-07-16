@@ -1423,7 +1423,7 @@ export function REPL({
   // session from mid-conversation context.
   const haikuTitleAttemptedRef = useRef((initialMessages?.length ?? 0) > 0);
   const agentTitle = mainThreadAgentDefinition?.agentType;
-  const terminalTitle = sessionTitle ?? agentTitle ?? haikuTitle ?? 'Claude Code';
+  const terminalTitle = sessionTitle ?? agentTitle ?? haikuTitle ?? 'CCB';
   const isWaitingForApproval =
     toolUseConfirmQueue.length > 0 || promptQueue.length > 0 || pendingWorkerRequest || pendingSandboxRequest;
   // Local-jsx commands (like /plugin, /config) show user-facing dialogs that
@@ -4885,7 +4885,7 @@ export function REPL({
         ) {
           void sendNotification(
             {
-              message: 'Claude is waiting for your input',
+              message: 'CCB is waiting for your input',
               notificationType: 'idle_prompt',
             },
             terminal,
@@ -5226,7 +5226,7 @@ export function REPL({
     const handleSuspend = () => {
       // Print suspension instructions
       process.stdout.write(
-        `\nClaude Code has been suspended. Run \`fg\` to bring Claude Code back.\nNote: ctrl + z now suspends Claude Code, ctrl + _ undoes input.\n`,
+        `\nCCB has been suspended. Run \`fg\` to bring CCB back.\nNote: ctrl + z now suspends CCB, ctrl + _ undoes input.\n`,
       );
     };
 

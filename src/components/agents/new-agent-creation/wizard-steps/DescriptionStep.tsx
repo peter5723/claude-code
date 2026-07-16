@@ -43,7 +43,7 @@ export function DescriptionStep(): ReactNode {
 
   return (
     <WizardDialogLayout
-      subtitle="Description (tell Claude when to use this agent)"
+      subtitle="Description (tell CCB when to use this agent)"
       footerText={
         <Byline>
           <KeyboardShortcutHint shortcut="Type" action="enter text" />
